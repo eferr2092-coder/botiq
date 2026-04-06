@@ -1,0 +1,14 @@
+# config.py
+
+VALOR_ENTRADA = 2
+
+# MARTINGALE
+MARTINGALE_ATIVO = True
+GALES = 1
+MULTIPLICADOR = 2.2
+
+# EXECUÇÃO
+SEGUNDO_ENTRADA = 58  # 🔥 entra antes do candle fechar
+
+# FILTRO
+EVITAR_DUPLICADO = True
