@@ -1,4 +1,4 @@
-telebot
-git+https://github.com/Lu-Yi-Hsun/iqoptionapi.git
+pyTelegramBotAPI
 requests
 python-dotenv
+git+https://github.com/Lu-Yi-Hsun/iqoptionapi.git
