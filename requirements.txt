@@ -1,0 +1,4 @@
+telebot
+iqoptionapi
+requests
+python-dotenv
