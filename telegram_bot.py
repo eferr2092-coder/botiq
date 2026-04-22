@@ -1,7 +1,14 @@
+import os
+import time
 import telebot
 from main import processar
 
-TOKEN = "8421186323:AAEPQax_M1f5ZxHDM9DZElTBh5e_ZxHf5WY"
+# 🔐 TOKEN via variável de ambiente (Railway)
+TOKEN = os.getenv("TOKEN")
+
+if not TOKEN:
+    raise Exception("❌ TOKEN não definido nas variáveis de ambiente")
+
 bot = telebot.TeleBot(TOKEN)
 
 ativo = True
@@ -30,6 +37,18 @@ def status(msg):
     bot.reply_to(msg, f"📊 Status do bot: {status_bot}")
 
 
+# 🔄 NORMALIZA DIREÇÃO (aceita português)
+def normalizar_direcao(texto):
+    texto = texto.lower()
+
+    if texto in ["call", "compra", "comprar", "ligar"]:
+        return "call"
+    elif texto in ["put", "venda", "vender"]:
+        return "put"
+    else:
+        return None
+
+
 # 📡 RECEBER SINAIS
 @bot.message_handler(func=lambda m: True)
 def sinais(msg):
@@ -39,46 +58,63 @@ def sinais(msg):
         bot.reply_to(msg, "⛔ Bot está parado. Use /start")
         return
 
-    if ";" not in msg.text:
+    texto = msg.text.strip()
+
+    # 🔒 Ignora mensagens fora do padrão
+    if ";" not in texto:
         return
 
     try:
-        # 📡 Confirma recebimento
         bot.reply_to(msg, "📡 Sinal recebido! Processando...")
 
         # 🚀 PROCESSA SINAL
-        resultado, lucro, erro = processar(msg.text)
+        resultado, lucro, erro = processar(texto)
 
-        # 📊 RESPOSTA PROFISSIONAL
         if erro:
+            bot.send_message(msg.chat.id, f"❌ ERRO\n{erro}")
+            return
+
+        if resultado == "WIN":
             bot.send_message(
                 msg.chat.id,
-                f"❌ ERRO\n{erro}"
+                f"✅ WIN\n💰 Lucro: +{lucro}"
+            )
+        elif resultado == "LOSS":
+            bot.send_message(
+                msg.chat.id,
+                f"❌ LOSS\n💸 Resultado: {lucro}"
             )
         else:
-            if resultado == "WIN":
-                bot.send_message(
-                    msg.chat.id,
-                    f"✅ WIN\n💰 Lucro: +{lucro}"
-                )
-            elif resultado == "LOSS":
-                bot.send_message(
-                    msg.chat.id,
-                    f"❌ LOSS\n💸 Lucro: {lucro}"
-                )
-            else:
-                bot.send_message(
-                    msg.chat.id,
-                    f"⚠️ Resultado: {resultado}\n💰 {lucro}"
-                )
+            bot.send_message(
+                msg.chat.id,
+                f"⚠️ Resultado: {resultado}\n💰 {lucro}"
+            )
 
     except Exception as e:
         bot.send_message(
             msg.chat.id,
-            f"❌ Erro inesperado:\n{e}"
+            f"❌ Erro inesperado:\n{str(e)}"
         )
 
 
-# 🔁 LOOP
-print("🤖 Bot Telegram rodando...")
-bot.polling(none_stop=True)
+# 🚀 INICIALIZAÇÃO PROFISSIONAL
+def iniciar_bot():
+    print("🤖 Bot Telegram rodando...")
+
+    while True:
+        try:
+            bot.polling(
+                none_stop=True,
+                interval=0,
+                timeout=60,
+                long_polling_timeout=60
+            )
+        except Exception as e:
+            print(f"⚠️ Erro no polling: {e}")
+            time.sleep(5)
+
+
+# 🔥 ENTRYPOINT
+if __name__ == "__main__":
+    bot.remove_webhook()  # 🔑 remove conflito 409
+    iniciar_bot()
