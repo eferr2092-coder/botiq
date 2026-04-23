@@ -1,6 +1,0 @@
-from iqoptionapi.stable_api import IQ_Option
-
-Iq = IQ_Option("eferr2092@gmail.com", "Edufb@987")
-check, reason = Iq.connect()
-
-print(check, reason)

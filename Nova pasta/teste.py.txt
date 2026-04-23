@@ -1,4 +1,0 @@
-from iq_connection import conectar
-
-Iq = conectar()
-print(Iq)
