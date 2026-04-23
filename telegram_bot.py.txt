@@ -3,7 +3,7 @@ import time
 import telebot
 from main import processar
 
-# 🔐 TOKEN via variável de ambiente
+# 🔐 TOKEN via variável de ambiente (Railway)
 TOKEN = os.getenv("TOKEN")
 
 if not TOKEN:
@@ -37,6 +37,18 @@ def status(msg):
     bot.reply_to(msg, f"📊 Status do bot: {status_bot}")
 
 
+# 🔄 NORMALIZA DIREÇÃO (aceita português)
+def normalizar_direcao(texto):
+    texto = texto.lower()
+
+    if texto in ["call", "compra", "comprar", "ligar"]:
+        return "call"
+    elif texto in ["put", "venda", "vender"]:
+        return "put"
+    else:
+        return None
+
+
 # 📡 RECEBER SINAIS
 @bot.message_handler(func=lambda m: True)
 def sinais(msg):
@@ -55,7 +67,7 @@ def sinais(msg):
     try:
         bot.reply_to(msg, "📡 Sinal recebido! Processando...")
 
-        # 🚀 PROCESSAMENTO
+        # 🚀 PROCESSA SINAL
         resultado, lucro, erro = processar(texto)
 
         if erro:
@@ -63,37 +75,41 @@ def sinais(msg):
             return
 
         if resultado == "WIN":
-            bot.send_message(msg.chat.id, f"✅ WIN\n💰 Lucro: +{lucro}")
+            bot.send_message(
+                msg.chat.id,
+                f"✅ WIN\n💰 Lucro: +{lucro}"
+            )
         elif resultado == "LOSS":
-            bot.send_message(msg.chat.id, f"❌ LOSS\n💸 Resultado: {lucro}")
+            bot.send_message(
+                msg.chat.id,
+                f"❌ LOSS\n💸 Resultado: {lucro}"
+            )
         else:
-            bot.send_message(msg.chat.id, f"⚠️ Resultado: {resultado}\n💰 {lucro}")
+            bot.send_message(
+                msg.chat.id,
+                f"⚠️ Resultado: {resultado}\n💰 {lucro}"
+            )
 
     except Exception as e:
-        bot.send_message(msg.chat.id, f"❌ Erro inesperado:\n{str(e)}")
+        bot.send_message(
+            msg.chat.id,
+            f"❌ Erro inesperado:\n{str(e)}"
+        )
 
 
-# 🚀 LOOP PROFISSIONAL (ANTI-CRASH + ANTI-409)
+# 🚀 INICIALIZAÇÃO PROFISSIONAL
 def iniciar_bot():
     print("🤖 Bot Telegram rodando...")
 
-    while True:
-        try:
-            bot.infinity_polling(
-                timeout=60,
-                long_polling_timeout=60
-            )
-        except Exception as e:
-            print(f"⚠️ Erro no polling: {e}")
+while True:
+    try:
+        bot.polling(none_stop=True, interval=2, timeout=60)
+    except Exception as e:
+        print(f"⚠️ Erro no polling: {e}")
             time.sleep(5)
 
 
 # 🔥 ENTRYPOINT
 if __name__ == "__main__":
-    try:
-        bot.remove_webhook()   # remove conflito antigo
-        bot.stop_polling()     # garante que não existe polling duplicado
-    except:
-        pass
-
+    bot.remove_webhook()  # 🔑 remove conflito 409
     iniciar_bot()
