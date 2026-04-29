@@ -1,11 +1,11 @@
-VALOR_ENTRADA = 2
+import os
 
-STOP_GAIN = 50
-STOP_LOSS = -50
+TOKEN = os.getenv("TOKEN")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 
-MARTINGALE = True
-GALE_NIVEIS = 2
-GALE_MULTIPLICADOR = 2.2
+EMAIL = os.getenv("EMAIL")
+SENHA = os.getenv("SENHA")
 
-EMAIL = "eferr2092@gmail.com"
-SENHA = "Edufb@987"
+VALOR_ENTRADA = float(os.getenv("VALOR_ENTRADA", 10))
+STOP_WIN = float(os.getenv("STOP_WIN", 50))
+STOP_LOSS = float(os.getenv("STOP_LOSS", -30))
