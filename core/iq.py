@@ -1,11 +1,14 @@
 from iqoptionapi.stable_api import IQ_Option
-from config import EMAIL, SENHA
-import time
+import os
 
-def conectar():
-    while True:
-        Iq = IQ_Option(EMAIL, SENHA)
-        Iq.connect()
-        if Iq.check_connect():
-            return Iq
-        time.sleep(5)
+def get_iq():
+    email = os.getenv("IQ_EMAIL")
+    senha = os.getenv("IQ_PASSWORD")
+
+    iq = IQ_Option(email, senha)
+    status, _ = iq.connect()
+
+    if status:
+        iq.change_balance("PRACTICE")
+        return iq
+    return None
