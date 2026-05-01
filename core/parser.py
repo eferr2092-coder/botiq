@@ -1,6 +1,11 @@
 def parse_sinal(msg):
     try:
-        m, par, horario, direcao = msg.split(";")
-        return {"par": par, "hora": horario, "dir": direcao.upper()}
+        partes = msg.split(";")
+        return {
+            "timeframe": partes[0],
+            "ativo": partes[1],
+            "horario": partes[2],
+            "direcao": partes[3]
+        }
     except:
         return None
